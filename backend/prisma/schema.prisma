@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  role_id    String?  @db.Uuid
+  username   String?  @unique @db.VarChar(255)
+  password   String   @db.VarChar(1000)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  role Role? @relation(fields: [role_id], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?  @db.VarChar(255)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  users User[]
+
+  @@map("roles")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique @db.VarChar(255)
+  slug        String    @unique @db.VarChar(255)
+  description String?   @db.Text
+  products    Product[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@index([slug])
+  @@map("categories")
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String      @db.VarChar(255)
+  slug        String      @unique @db.VarChar(255)
+  description String?     @db.Text
+  price       Decimal     @db.Decimal(10, 2)
+  stock       Int         @default(0)
+  image_url   String?     @db.Text
+  category_id String
+  category    Category    @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  order_items OrderItem[]
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+
+  @@index([category_id])
+  @@index([slug])
+  @@map("products")
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  order_number      String      @unique @db.VarChar(255)
+  customer_name     String      @db.VarChar(255)
+  customer_phone    String      @db.VarChar(20)
+  customer_address  String      @db.Text
+  latitude          Decimal?    @db.Decimal(10, 8)
+  longitude         Decimal?    @db.Decimal(11, 8)
+  delivery_schedule String      @db.VarChar(50)
+  payment_method    String      @db.VarChar(50)
+  total_amount      Decimal     @db.Decimal(10, 2)
+  status            OrderStatus @default(PENDING)
+  order_items       OrderItem[]
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+
+  @@index([order_number])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  order_id      String
+  product_id    String
+  quantity      Int
+  price_at_time Decimal  @db.Decimal(10, 2)
+  order         Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product       Product  @relation(fields: [product_id], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([order_id])
+  @@index([product_id])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
