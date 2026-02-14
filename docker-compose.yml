@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  backend:
+    #image: ghcr.io/raihanmd/dies-ecommerce-backend:latest
+    image: ecommerce-backend:local
+    container_name: ecommerce-backend
+    restart: unless-stopped
+    env_file:
+      - .env.backend
+    networks:
+      - app-network
+    ports:
+      - 127.0.0.1:8263:3000
+
+  frontend:
+    #image: ghcr.io/raihanmd/dies-ecommerce-frontend:latest
+    image: ecommerce-frontend:local
+    container_name: ecommerce-frontend
+    restart: unless-stopped
+    env_file:
+      - .env.frontend
+    networks:
+      - app-network
+    ports:
+      - 127.0.0.1:8262:3000
+
+networks:
+  app-network:
+    external: true
