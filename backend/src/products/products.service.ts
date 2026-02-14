@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/_common/prisma/prisma.service";
 import { ImageKitService } from "src/_common/imagekit/imagekit.service";
 import { CreateProductDto, UpdateProductDto, ProductQuery } from "./zod";
@@ -167,6 +171,26 @@ export class ProductsService {
       thumbnailUrl: result.thumbnailUrl,
       name: result.name,
     };
+  }
+
+  async reduceStock(productId: string, quantity: number) {
+    const product = await this.findById(productId);
+
+    // Safety check: Ensure stock won't go negative
+    if (product.stock < quantity) {
+      throw new BadRequestException(
+        `Insufficient stock for product "${product.name}". Available: ${product.stock}, Required: ${quantity}`,
+      );
+    }
+
+    return this.prismaService.product.update({
+      where: { id: productId },
+      data: {
+        stock: {
+          decrement: quantity,
+        },
+      },
+    });
   }
 
   private generateSlug(name: string): string {
