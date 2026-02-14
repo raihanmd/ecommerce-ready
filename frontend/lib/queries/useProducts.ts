@@ -107,7 +107,6 @@ export const useCheckStock = (productId: string, quantity: number) => {
             params: { quantity },
           },
         );
-        console.log("useCheckStock response:", response.data);
         return response.data.payload.hasStock;
       } catch (err) {
         console.error("useCheckStock error:", err);
