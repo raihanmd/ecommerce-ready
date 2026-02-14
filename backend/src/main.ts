@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 
 import { AppModule } from "./app.module";
 
-const WHILTELIST_ORIGIN = ["http://localhost:3001", "http://localhost:3005"];
+const WHILTELIST_ORIGIN = ["http://localhost:3001", "http://localhost:3005", "https://warung.raihanmd.xyz"];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
