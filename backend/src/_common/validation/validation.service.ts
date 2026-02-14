@@ -1,24 +1,24 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { z, ZodType } from 'zod';
+import { ForbiddenException, Injectable } from "@nestjs/common";
+import { z, ZodType } from "zod";
 
 export const FileValidationSchemas = {
   IMAGE: z.object({
-    filename: z.string().min(1, 'Filename is required'),
+    filename: z.string().min(1, "Filename is required"),
     mimetype: z.enum(
-      ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'],
+      ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"],
       {
-        error: 'Invalid image file type. Allowed: PNG, JPEG, SVG, WebP',
+        error: "Invalid image file type. Allowed: PNG, JPEG, SVG, WebP",
       },
     ),
-    size: z.number().max(5 * 1024 * 1024, 'Image size must be less than 5MB'),
+    size: z.number().max(5 * 1024 * 1024, "Image size must be less than 5MB"),
   }),
 
   ANY: z.object({
-    filename: z.string().min(1, 'Filename is required'),
-    mimetype: z.string().min(1, 'File type is required'),
+    filename: z.string().min(1, "Filename is required"),
+    mimetype: z.string().min(1, "File type is required"),
     size: z
       .number()
-      .max(100 * 1024 * 1024, 'File size must be less than 100MB'),
+      .max(100 * 1024 * 1024, "File size must be less than 100MB"),
   }),
 } as const;
 
@@ -31,7 +31,7 @@ export type FileUploadData<T extends FileValidationType> = z.infer<
 export class ValidationService {
   validate<T>(schema: ZodType<T>, data: unknown): T {
     if (!data) {
-      throw new ForbiddenException('No data provided');
+      throw new ForbiddenException("No data provided");
     }
 
     try {
@@ -54,9 +54,9 @@ export class ValidationService {
       fieldname: file.fieldname,
       originalname: file.originalname,
       encoding: file.encoding,
-      destination: file.destination,
-      path: file.path,
-      buffer: file.buffer,
+      // destination: file?.destination,
+      // path: file?.path,
+      // buffer: file?.buffer,
     };
 
     this.validate(schema, fileData);
@@ -72,7 +72,7 @@ export class ValidationService {
     const schema = FileValidationSchemas[validationType];
     const fileData = {
       filename: file.originalname,
-      mimetype: file.mimetype as unknown as FileUploadData<T>['mimetype'],
+      mimetype: file.mimetype as unknown as FileUploadData<T>["mimetype"],
       size: file.size,
     };
 
