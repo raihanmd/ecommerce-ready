@@ -123,7 +123,7 @@ export function ProductFilters({ categories = [] }: ProductFiltersProps) {
           <div className="relative flex-1">
             <Input
               type="text"
-              placeholder="Search products..."
+              placeholder="Cari produk..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               disabled={isPending}
