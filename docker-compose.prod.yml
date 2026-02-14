@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   backend:
-    #image: ghcr.io/raihanmd/dies-ecommerce-backend:latest
-    image: ecommerce-backend:local
+    image: ghcr.io/raihanmd/dies-ecommerce-backend:latest
     container_name: ecommerce-backend
     restart: unless-stopped
     env_file:
@@ -14,8 +13,7 @@ services:
       - 127.0.0.1:8263:3000
 
   frontend:
-    #image: ghcr.io/raihanmd/dies-ecommerce-frontend:latest
-    image: ecommerce-frontend:local
+    image: ghcr.io/raihanmd/dies-ecommerce-frontend:latest
     container_name: ecommerce-frontend
     restart: unless-stopped
     env_file:
