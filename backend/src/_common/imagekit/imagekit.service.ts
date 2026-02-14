@@ -109,14 +109,16 @@ export class ImageKitService {
         throw new BadRequestException("No file provided");
       }
 
-      if (!file.buffer) {
+      // @ts-ignore
+      if (!file?.buffer) {
         throw new BadRequestException(
           "File buffer is required for ImageKit upload",
         );
       }
 
       const uploadParams = {
-        file: file.buffer,
+        // @ts-ignore
+        file: file?.buffer,
         fileName: options.fileName || file.originalname,
         folder: options.folder || "/uploads",
         tags: options.tags || [],
