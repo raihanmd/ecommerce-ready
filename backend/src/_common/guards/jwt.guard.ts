@@ -1,9 +1,9 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { Public } from '../decorators/public.decorator';
-import { Roles } from '../decorators/roles.decorator';
-import { ReqWithUser } from 'src/types';
+import { ExecutionContext, Injectable } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { AuthGuard } from "@nestjs/passport";
+import { Public } from "../decorators/public.decorator";
+import { Roles } from "../decorators/roles.decorator";
+import { ReqWithUser } from "src/types";
 
 /**
  * This guard handle the entire APP_GUARD
@@ -13,7 +13,7 @@ import { ReqWithUser } from 'src/types';
  * @extends {AuthGuard('jwt')}
  */
 @Injectable()
-export class JwtGuard extends AuthGuard('jwt') {
+export class JwtGuard extends AuthGuard("jwt") {
   constructor(private readonly reflector: Reflector) {
     super();
   }
@@ -93,11 +93,11 @@ export class JwtGuard extends AuthGuard('jwt') {
   ): user is { id: string; role: { id: string; name: string } } {
     return (
       user != null &&
-      typeof user === 'object' &&
-      'role' in user &&
+      typeof user === "object" &&
+      "role" in user &&
       (user as { role: unknown }).role != null &&
-      typeof (user as { role: unknown }).role === 'object' &&
-      'name' in (user as { role: object }).role
+      typeof (user as { role: unknown }).role === "object" &&
+      "name" in (user as { role: object }).role
     );
   }
 

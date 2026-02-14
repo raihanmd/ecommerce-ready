@@ -1,323 +1,327 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/authStore";
+import { useAnalytics } from "@/lib/queries/useAdmin";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
-  FiLogOut,
-  FiMenu,
-  FiX,
-  FiBarChart3,
-  FiPackage,
-  FiShoppingCart,
-  FiTrendingUp,
-} from "react-icons/fi";
+  Package,
+  ShoppingCart,
+  FolderTree,
+  DollarSign,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  TrendingUp,
+  ArrowUpRight,
+  RefreshCw,
+} from "lucide-react";
 import Link from "next/link";
+import { isAuthError, getErrorMessage } from "@/lib/queryClient";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
-interface Analytics {
-  totalOrders: number;
-  totalProducts: number;
-  totalCategories: number;
-  totalRevenue: number;
-  pendingOrders: number;
-  approvedOrders: number;
-}
-
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
+  const { data: analytics, isLoading, error, refetch } = useAnalytics();
+  const { logout } = useAuthStore();
   const router = useRouter();
-  const { admin, token, logout } = useAuthStore();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check authentication
-    if (!token || !admin) {
-      router.push("/admin/login");
-      return;
-    }
+  // Handle authentication error
+  if (error && isAuthError(error)) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span>Your session has expired. Please login again.</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              logout();
+              router.push("/login");
+            }}
+          >
+            Go to Login
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
-    // Fetch analytics
-    fetchAnalytics();
-  }, [token, admin, router]);
+  // Handle other errors
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span>{getErrorMessage(error)}</span>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/analytics`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        // Backend returns { payload: analytics }
-        const payload = data.payload || data.data || data;
-        setAnalytics(payload);
-      }
-    } catch (error) {
-      console.error("Failed to fetch analytics:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push("/admin/login");
-  };
-
-  const StatCard = ({
-    icon: Icon,
-    label,
-    value,
-    color,
-  }: {
-    icon: React.ReactNode;
-    label: string;
-    value: string | number;
-    color: string;
-  }) => (
-    <div
-      className="bg-white rounded-lg shadow-md p-6 border-l-4"
-      style={{ borderLeftColor: color }}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-500 text-sm font-medium">{label}</p>
-          <p className="text-3xl font-bold text-gray-800 mt-2">{value}</p>
-        </div>
-        <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: `${color}20` }}
-        >
-          <div style={{ color }}>{Icon}</div>
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-24" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  const stats = [
+    {
+      title: "Total Orders",
+      value: analytics?.totalOrders || 0,
+      icon: ShoppingCart,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100 dark:bg-blue-900/20",
+      trend: "+12.5%",
+      trendUp: true,
+    },
+    {
+      title: "Total Revenue",
+      value: `Rp ${(analytics?.totalRevenue || 0).toLocaleString("id-ID")}`,
+      icon: DollarSign,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-100 dark:bg-emerald-900/20",
+      trend: "+18.3%",
+      trendUp: true,
+    },
+    {
+      title: "Total Products",
+      value: analytics?.totalProducts || 0,
+      icon: Package,
+      color: "text-green-600",
+      bgColor: "bg-green-100 dark:bg-green-900/20",
+      trend: "+5.2%",
+      trendUp: true,
+    },
+    {
+      title: "Categories",
+      value: analytics?.totalCategories || 0,
+      icon: FolderTree,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100 dark:bg-purple-900/20",
+    },
+    {
+      title: "Pending Orders",
+      value: analytics?.pendingOrders || 0,
+      icon: Clock,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100 dark:bg-orange-900/20",
+    },
+    {
+      title: "Approved Orders",
+      value: analytics?.approvedOrders || 0,
+      icon: CheckCircle,
+      color: "text-teal-600",
+      bgColor: "bg-teal-100 dark:bg-teal-900/20",
+    },
+  ];
+
+  const pendingPercentage = analytics?.totalOrders
+    ? (analytics.pendingOrders / analytics.totalOrders) * 100
+    : 0;
+
+  const approvedPercentage = analytics?.totalOrders
+    ? (analytics.approvedOrders / analytics.totalOrders) * 100
+    : 0;
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div
-        className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } bg-gradient-to-b from-slate-800 to-slate-900 text-white transition-all duration-300 fixed h-full z-10`}
-      >
-        {/* Logo */}
-        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-          {sidebarOpen && <h2 className="font-bold text-xl">Admin</h2>}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-slate-700 rounded-lg transition"
-          >
-            {sidebarOpen ? <FiX /> : <FiMenu />}
-          </button>
-        </div>
+    <div className="space-y-6">
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.title} className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline justify-between">
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  {stat.trend && (
+                    <div
+                      className={`flex items-center text-xs font-medium ${
+                        stat.trendUp ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      {stat.trend}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {[
-            {
-              label: "Dashboard",
-              icon: <FiBarChart3 />,
-              href: "/admin/dashboard",
-              active: true,
-            },
-            {
-              label: "Orders",
-              icon: <FiShoppingCart />,
-              href: "/admin/orders",
-            },
-            {
-              label: "Products",
-              icon: <FiPackage />,
-              href: "/admin/products",
-            },
-            {
-              label: "Categories",
-              icon: <FiTrendingUp />,
-              href: "/admin/categories",
-            },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                item.active
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-slate-700 text-gray-300"
-              }`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              {sidebarOpen && <span>{item.label}</span>}
-            </Link>
-          ))}
-        </nav>
-
-        {/* User Profile & Logout */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-slate-700 p-4">
-          {sidebarOpen && (
-            <div className="mb-4 pb-4 border-b border-slate-700">
-              <p className="text-sm text-gray-400">Logged in as</p>
-              <p className="font-semibold text-white truncate">
-                {admin?.email}
+      {/* Order Status & Quick Actions */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Order Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Status Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-600" />
+                  <span className="text-sm font-medium">Pending</span>
+                </div>
+                <span className="text-2xl font-bold text-orange-600">
+                  {analytics?.pendingOrders || 0}
+                </span>
+              </div>
+              <Progress value={pendingPercentage} className="h-2" />
+              <p className="text-xs text-muted-foreground">
+                {pendingPercentage.toFixed(1)}% of total orders
               </p>
-              <p className="text-xs text-blue-400">{admin?.role}</p>
             </div>
-          )}
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
-          >
-            <FiLogOut /> {sidebarOpen && "Logout"}
-          </button>
-        </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium">Approved</span>
+                </div>
+                <span className="text-2xl font-bold text-green-600">
+                  {analytics?.approvedOrders || 0}
+                </span>
+              </div>
+              <Progress value={approvedPercentage} className="h-2" />
+              <p className="text-xs text-muted-foreground">
+                {approvedPercentage.toFixed(1)}% of total orders
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Link
+              href="/admin/dashboard/orders"
+              className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                  <ShoppingCart className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Manage Orders</p>
+                  <p className="text-xs text-muted-foreground">
+                    View and process orders
+                  </p>
+                </div>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+
+            <Link
+              href="/admin/dashboard/products"
+              className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
+                  <Package className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Manage Products</p>
+                  <p className="text-xs text-muted-foreground">
+                    Add or edit products
+                  </p>
+                </div>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+
+            <Link
+              href="/admin/dashboard/categories"
+              className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
+                  <FolderTree className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Manage Categories</p>
+                  <p className="text-xs text-muted-foreground">
+                    Organize products
+                  </p>
+                </div>
+              </div>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Main Content */}
-      <div
-        className={`${sidebarOpen ? "ml-64" : "ml-20"} flex-1 overflow-auto`}
-      >
-        {/* Header */}
-        <div className="bg-white shadow-md p-6 flex items-center justify-between sticky top-0 z-5">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Welcome back, {admin?.name}
-            </p>
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">New order received</p>
+                <p className="text-xs text-muted-foreground">2 minutes ago</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                <Package className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Product stock updated</p>
+                <p className="text-xs text-muted-foreground">1 hour ago</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                <FolderTree className="h-4 w-4 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">New category created</p>
+                <p className="text-xs text-muted-foreground">3 hours ago</p>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={fetchAnalytics}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Refresh
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : analytics ? (
-            <div className="space-y-6">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                  icon={<FiShoppingCart className="text-2xl" />}
-                  label="Total Orders"
-                  value={analytics.totalOrders}
-                  color="#3b82f6"
-                />
-                <StatCard
-                  icon={<FiTrendingUp className="text-2xl" />}
-                  label="Total Revenue"
-                  value={`$${analytics.totalRevenue.toLocaleString()}`}
-                  color="#10b981"
-                />
-                <StatCard
-                  icon={<FiPackage className="text-2xl" />}
-                  label="Total Products"
-                  value={analytics.totalProducts}
-                  color="#f59e0b"
-                />
-                <StatCard
-                  icon={<FiBarChart3 className="text-2xl" />}
-                  label="Total Categories"
-                  value={analytics.totalCategories}
-                  color="#8b5cf6"
-                />
-              </div>
-
-              {/* Orders Status */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Order Status
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-600">
-                          Pending
-                        </span>
-                        <span className="text-2xl font-bold text-yellow-600">
-                          {analytics.pendingOrders}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-yellow-500 h-2 rounded-full"
-                          style={{
-                            width: `${(analytics.pendingOrders / analytics.totalOrders) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-600">
-                          Approved
-                        </span>
-                        <span className="text-2xl font-bold text-green-600">
-                          {analytics.approvedOrders}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-500 h-2 rounded-full"
-                          style={{
-                            width: `${(analytics.approvedOrders / analytics.totalOrders) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Quick Actions
-                  </h3>
-                  <div className="space-y-3">
-                    <Link
-                      href="/admin/orders"
-                      className="block px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition"
-                    >
-                      View All Orders
-                    </Link>
-                    <Link
-                      href="/admin/products"
-                      className="block px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg font-medium transition"
-                    >
-                      Manage Products
-                    </Link>
-                    <Link
-                      href="/admin/categories"
-                      className="block px-4 py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-medium transition"
-                    >
-                      Manage Categories
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Failed to load analytics</p>
-            </div>
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

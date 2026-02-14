@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Match backend response type
 export interface AdminUser {
   id: string;
-  email: string;
-  name: string;
-  role: "Admin" | "Super Admin";
+  username: string;
+  role: {
+    id: string;
+    name: string; // "ADMIN" or "SUPER_ADMIN" from backend
+  };
 }
 
 export interface AuthState {
@@ -14,27 +17,32 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  hasHydrated: boolean;
 
   // Actions
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  setToken: (token: string, admin: AdminUser) => void;
   clearError: () => void;
+  setHasHydrated: (value: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       admin: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
 
+      hasHydrated: false,
+
+      setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
+
       login: async (username: string, password: string) => {
         set({ isLoading: true, error: null });
+
         try {
-          // Call your backend login endpoint
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
             {
@@ -52,16 +60,13 @@ export const useAuthStore = create<AuthState>()(
           // Backend returns { payload: { token, user } }
           const { token, user } = data.payload;
 
+          // Save exactly as backend returns
           set({
             token,
-            admin: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role.name,
-            },
+            admin: user, // user already has correct shape: { id, username, role: { id, name } }
             isAuthenticated: true,
             isLoading: false,
+            error: null,
           });
         } catch (error) {
           const errorMessage =
@@ -84,14 +89,6 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      setToken: (token: string, admin: AdminUser) => {
-        set({
-          token,
-          admin,
-          isAuthenticated: true,
-        });
-      },
-
       clearError: () => {
         set({ error: null });
       },
@@ -103,6 +100,9 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated?.(true);
+      },
     },
   ),
 );

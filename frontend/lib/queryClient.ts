@@ -1,24 +1,34 @@
 import { QueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { createDebugInterceptor } from "./debug";
 
-// Create axios instance with configuration
+// Create axios instance
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json",
   },
   timeout: 30000,
 });
 
-// Request interceptor
+// Request interceptor - attach token from localStorage
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add auth token if available
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      if (typeof window !== "undefined") {
+        // Get auth state from localStorage
+        const authStorage = localStorage.getItem("admin-auth-storage");
+
+        if (authStorage) {
+          const parsed = JSON.parse(authStorage);
+          const token = parsed.state?.token;
+
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to attach auth token:", error);
     }
     return config;
   },
@@ -27,45 +37,105 @@ apiClient.interceptors.request.use(
   },
 );
 
-// Response interceptor
+// Response interceptor - handle errors WITHOUT auto-redirect
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Handle common error scenarios
-    if (error.response?.status === 401) {
-      // Clear auth token and redirect to login if needed
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("authToken");
+    try {
+      // Handle 401 - DON'T auto redirect, let component handle it
+      if (error.response?.status === 401) {
+        console.warn("Unauthorized request:", error.config?.url);
+        // Component will handle this via error state
       }
-    }
 
-    if (error.response?.status === 429) {
-      console.warn("Rate limit exceeded. Please try again later.");
+      // Handle 404 - just log it
+      if (error.response?.status === 404) {
+        console.warn("Resource not found:", error.config?.url);
+      }
+
+      // Handle 429 Rate Limit
+      if (error.response?.status === 429) {
+        console.warn("Rate limit exceeded");
+      }
+
+      // Handle 500 Server Error
+      if (error.response?.status === 500) {
+        console.error("Server error:", error.config?.url);
+      }
+    } catch (handlingError) {
+      console.error("Error in error handler:", handlingError);
     }
 
     return Promise.reject(error);
   },
 );
 
-// Add debug interceptors in development
-if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-  createDebugInterceptor(apiClient);
-}
-
 // Configure React Query
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-      retry: 1,
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors
+        if (error instanceof AxiosError) {
+          const status = error.response?.status;
+          if (status && status >= 400 && status < 500) {
+            return false;
+          }
+        }
+        return failureCount < 2;
+      },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+      throwOnError: false, // Don't throw errors
     },
     mutations: {
-      retry: 1,
+      retry: (failureCount, error) => {
+        if (error instanceof AxiosError) {
+          const status = error.response?.status;
+          if (status && status >= 400 && status < 500) {
+            return false;
+          }
+        }
+        return failureCount < 1;
+      },
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      throwOnError: false,
     },
   },
 });
+
+// Helper to get error message
+export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof AxiosError) {
+    if (error.response?.data?.message) {
+      return error.response.data.message;
+    }
+    if (error.response?.statusText) {
+      return error.response.statusText;
+    }
+    if (error.message === "Network Error") {
+      return "Network error. Please check your connection.";
+    }
+    if (error.code === "ECONNABORTED") {
+      return "Request timeout. Please try again.";
+    }
+    return error.message || "An error occurred";
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "An unexpected error occurred";
+};
+
+// Helper to check error type
+export const isAuthError = (error: unknown): boolean => {
+  if (error instanceof AxiosError) {
+    return error.response?.status === 401;
+  }
+  return false;
+};

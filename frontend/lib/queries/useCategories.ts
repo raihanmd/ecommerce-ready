@@ -12,7 +12,6 @@ export const useCategories = () => {
         const response = await apiClient.get<{ payload: Category[] }>(
           "/categories",
         );
-        console.log("useCategories response:", response.data);
         return response.data.payload || [];
       } catch (error: unknown) {
         console.error("useCategories error:", error);
@@ -32,7 +31,6 @@ export const useCategoryBySlug = (slug: string | null) => {
         const response = await apiClient.get<{
           payload: Category & { products: unknown[] };
         }>(`/categories/${slug}`);
-        console.log("useCategoryBySlug response:", response.data);
         return response.data.payload;
       } catch (error: unknown) {
         console.error("useCategoryBySlug error:", error);

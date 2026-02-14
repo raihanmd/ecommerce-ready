@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 
@@ -31,7 +30,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
         <QueryProvider>
-          <Navbar />
           <main>{children}</main>
           <Toaster position="bottom-right" />
         </QueryProvider>

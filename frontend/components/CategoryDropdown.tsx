@@ -14,11 +14,6 @@ import {
 export default function CategoryDropdown() {
   const { data: categories = [], isLoading, error } = useCategories();
 
-  // Debug logging
-  console.log("CategoryDropdown - data:", categories);
-  console.log("CategoryDropdown - isLoading:", isLoading);
-  console.log("CategoryDropdown - error:", error);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -26,22 +21,22 @@ export default function CategoryDropdown() {
           variant="ghost"
           className="gap-2 text-foreground hover:text-primary"
         >
-          Categories
+          Kategori
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
         {isLoading ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            Loading...
+            Memuat...
           </div>
         ) : error ? (
           <div className="px-2 py-1.5 text-sm text-destructive">
-            Error loading categories
+            Gagal memuat kategori
           </div>
         ) : categories?.length === 0 ? (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">
-            No categories
+            Tidak ada kategori
           </div>
         ) : (
           categories?.map((category) => (

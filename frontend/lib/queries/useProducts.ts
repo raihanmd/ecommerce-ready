@@ -3,14 +3,12 @@ import { apiClient } from "@/lib/queryClient";
 import { Product } from "@/types";
 
 export interface ProductsResponse {
-  payload: {
-    data: Product[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
+  payload: Product[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
   };
 }
 
@@ -61,18 +59,15 @@ export const useProducts = ({
             ...(search && { search }),
           },
         });
-        console.log("useProducts response:", response.data);
-
-        // Backend returns { payload: { data: [...], pagination: {...} } }
-        const { payload } = response.data;
+        const { payload, meta } = response.data;
 
         if (!payload) {
           throw new Error("Invalid response structure");
         }
 
         return {
-          data: payload.data || [],
-          pagination: payload.pagination,
+          data: payload,
+          pagination: meta,
         };
       } catch (err) {
         console.error("useProducts error:", err);
@@ -91,7 +86,6 @@ export const useProductDetail = (slug: string) => {
         const response = await apiClient.get<ProductDetailsResponse>(
           `/products/detail/${slug}`,
         );
-        console.log("useProductDetail response:", response.data);
         return response.data.payload;
       } catch (err) {
         console.error("useProductDetail error:", err);

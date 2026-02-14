@@ -36,7 +36,7 @@ export class AdminService {
     });
 
     const totalRevenue = totalRevenueData._sum.total_amount
-      ? parseFloat(totalRevenueData._sum.total_amount as string)
+      ? parseFloat(totalRevenueData._sum.total_amount.toString())
       : 0;
 
     // Extract counts by status

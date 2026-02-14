@@ -10,13 +10,13 @@ import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
 
 export default function ProductDetailPage() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const [quantity, setQuantity] = useState(1);
   const [imageZoom, setImageZoom] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const cart = useCart();
 
-  const { data: product, isLoading, error } = useProductDetail(slug);
+  const { data: product, isLoading, error } = useProductDetail(slug || "");
 
   const handleAddToCart = () => {
     if (product) {
