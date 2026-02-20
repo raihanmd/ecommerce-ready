@@ -29,16 +29,16 @@ export default function AdminLoginPage() {
     clearError();
 
     if (!username || !password) {
-      toast.error("Please fill in all fields");
+      toast.error("Harap isi semua bidang");
       return;
     }
 
     try {
       await login(username, password);
-      toast.success("Login successful!");
+      toast.success("Masuk berhasil!");
       router.push("/admin/dashboard");
     } catch (err) {
-      toast.error(error || "Login failed");
+      toast.error(error || "Masuk gagal");
     }
   };
 
@@ -50,18 +50,18 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-2">
             <ShieldCheck className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Portal</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Portal Admin</h1>
           <p className="text-muted-foreground">
-            Sign in to access the dashboard
+            Masuk untuk mengakses dashboard
           </p>
         </div>
 
         {/* Login Card */}
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardTitle className="text-2xl">Masuk</CardTitle>
             <CardDescription>
-              Enter your credentials to access admin panel
+              Masukkan kredensial Anda untuk mengakses panel admin
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -76,11 +76,11 @@ export default function AdminLoginPage() {
 
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Nama Pengguna</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder="Masukkan nama pengguna Anda"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading}
@@ -92,12 +92,12 @@ export default function AdminLoginPage() {
               {/* Password */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Kata Sandi</Label>
                 </div>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Masukkan kata sandi Anda"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
@@ -111,12 +111,12 @@ export default function AdminLoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    Sedang Masuk...
                   </>
                 ) : (
                   <>
                     <Lock className="mr-2 h-4 w-4" />
-                    Sign In
+                    Masuk
                   </>
                 )}
               </Button>
@@ -127,7 +127,7 @@ export default function AdminLoginPage() {
         {/* Back to home */}
         <div className="text-center">
           <Button variant="link" asChild>
-            <a href="/">← Back to website</a>
+            <a href="/">← Kembali ke website</a>
           </Button>
         </div>
       </div>

@@ -138,7 +138,7 @@ export default function Home() {
 
             <div className="text-center">
               <Button asChild size="lg" variant="outline">
-                <Link href="/products">View All Products →</Link>
+                <Link href="/products">Lihat Semua Produk →</Link>
               </Button>
             </div>
           </div>

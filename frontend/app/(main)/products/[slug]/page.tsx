@@ -22,7 +22,7 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (product) {
       cart.addItem(product, quantity);
-      toast.success(`${quantity} item(s) added to cart!`);
+      toast.success(`${quantity} item(s) ditambahkan ke keranjang!`);
       setQuantity(1);
     }
   };
@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
         className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6"
       >
         <FaArrowLeft className="text-sm" />
-        Back to Products
+        Kembali ke Produk
       </Link>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -158,11 +158,11 @@ export default function ProductDetailPage() {
           <div className="mb-6">
             {product.stock === 0 ? (
               <span className="inline-block bg-red-100 text-red-800 px-4 py-2 rounded">
-                Out of Stock
+                Stok Habis
               </span>
             ) : (
               <span className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded">
-                In Stock: {product.stock} available
+                Tersedia: {product.stock} stok
               </span>
             )}
           </div>
@@ -171,7 +171,7 @@ export default function ProductDetailPage() {
           {product.description && (
             <div className="mb-8 pb-8 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                Description
+                Deskripsi
               </h3>
               <div
                 className="text-gray-600 prose prose-sm max-w-none"
@@ -183,7 +183,7 @@ export default function ProductDetailPage() {
           {/* Quantity Selector */}
           <div className="mb-8">
             <label className="block text-sm font-semibold text-gray-900 mb-3">
-              Quantity
+              Jumlah
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -221,13 +221,13 @@ export default function ProductDetailPage() {
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 text-lg font-semibold"
           >
             <FaShoppingCart className="text-lg" />
-            {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            {product.stock === 0 ? "Stok Habis" : "Tambah ke Keranjang"}
           </button>
 
           {/* Additional Info */}
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-600">
-              Product ID:{" "}
+              ID Produk:{" "}
               <span className="font-mono text-gray-900">{product.id}</span>
             </p>
           </div>

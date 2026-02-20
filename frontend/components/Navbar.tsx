@@ -33,7 +33,7 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-foreground">eCommerce</h1>
-              <p className="text-xs text-muted-foreground">Shop Name</p>
+              <p className="text-xs text-muted-foreground">Nama Toko</p>
             </div>
           </Link>
 
@@ -158,7 +158,7 @@ export default function Navbar() {
                     >
                       <Link href={"/login"}>
                         <User className="h-4 w-4" />
-                        Admin Page
+                        Halaman Admin
                       </Link>
                     </Button>
                   </div>

@@ -66,7 +66,7 @@ function ProductsContent() {
     if (!pagination || total === 0) return "";
     const start = (page - 1) * limit + 1;
     const end = Math.min(page * limit, total);
-    return `Showing ${start}-${end} of ${total} products`;
+    return `Menampilkan ${start}-${end} dari ${total} produk`;
   };
 
   return (
@@ -76,7 +76,7 @@ function ProductsContent() {
         <div className="mb-8 space-y-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Products
+              Produk
             </h1>
             {!isLoading && !error && total > 0 && (
               <p className="text-sm text-muted-foreground mt-2">
@@ -109,12 +109,12 @@ function ProductsContent() {
         {error && !isLoading && !isPending && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Failed to Load Products</AlertTitle>
+            <AlertTitle>Gagal Memuat Produk</AlertTitle>
             <AlertDescription className="mt-2 space-y-2">
               <p>
                 {error instanceof Error
                   ? error.message
-                  : "An error occurred while fetching products"}
+                  : "Terjadi kesalahan saat mengambil produk"}
               </p>
               <Button
                 onClick={() => refetch()}
@@ -122,7 +122,7 @@ function ProductsContent() {
                 size="sm"
                 className="mt-2"
               >
-                Try Again
+                Coba Lagi
               </Button>
             </AlertDescription>
           </Alert>
@@ -157,11 +157,11 @@ function ProductsContent() {
               <AlertCircle className="w-8 h-8 text-muted-foreground" />
             </div>
             <div className="space-y-2">
-              <p className="text-xl font-semibold">No products found</p>
+              <p className="text-xl font-semibold">Produk tidak ditemukan</p>
               <p className="text-sm text-muted-foreground max-w-md">
                 {categoryId || search
-                  ? "Try adjusting your search or filters to find what you're looking for."
-                  : "There are currently no products available."}
+                  ? "Coba sesuaikan pencarian atau filter Anda untuk menemukan apa yang Anda cari."
+                  : "Saat ini tidak ada produk yang tersedia."}
               </p>
             </div>
             {(categoryId || search) && (
@@ -171,7 +171,7 @@ function ProductsContent() {
                   router.push(pathname);
                 }}
               >
-                Clear All Filters
+                Hapus Semua Filter
               </Button>
             )}
           </div>
@@ -192,7 +192,7 @@ export default function ProductsPage() {
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
                 <p className="text-sm text-muted-foreground">
-                  Loading products...
+                  Memuat produk...
                 </p>
               </div>
             </div>

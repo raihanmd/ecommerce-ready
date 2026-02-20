@@ -23,7 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     if (!isOutOfStock) {
       cart.addItem(product, 1);
-      toast.success(`${product.name} added to cart!`);
+      toast.success(`${product.name} ditambahkan ke keranjang!`);
     }
   };
 
@@ -41,7 +41,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-400">
-              No image
+              Tidak ada gambar
             </div>
           )}
         </div>
@@ -58,9 +58,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className="mb-4">
             {isOutOfStock ? (
-              <Badge variant="destructive">Out of Stock</Badge>
+              <Badge variant="destructive">Stok Habis</Badge>
             ) : (
-              <Badge variant="secondary">Stock: {product.stock}</Badge>
+              <Badge variant="secondary">Stok: {product.stock}</Badge>
             )}
           </div>
 
@@ -72,7 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             size="sm"
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+            {isOutOfStock ? "Stok Habis" : "Tambah ke Keranjang"}
           </Button>
         </div>
       </Card>

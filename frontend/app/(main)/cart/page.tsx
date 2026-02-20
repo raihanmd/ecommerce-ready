@@ -17,13 +17,13 @@ export default function CartPage() {
         <div className="flex flex-col items-center justify-center min-h-96 text-center">
           <ShoppingCart className="w-24 h-24 text-muted-foreground mb-4" />
           <h1 className="text-3xl font-bold text-foreground mb-4">
-            Your Cart is Empty
+            Keranjang Anda Kosong
           </h1>
           <p className="text-muted-foreground mb-8">
-            Add some products to your cart to get started!
+            Tambahkan beberapa produk ke keranjang untuk memulai!
           </p>
           <Button asChild size="lg">
-            <Link href="/products">Continue Shopping</Link>
+            <Link href="/products">Lanjutkan Belanja</Link>
           </Button>
         </div>
       </div>
@@ -32,7 +32,9 @@ export default function CartPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-foreground mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-8">
+        Keranjang Belanja
+      </h1>
 
       <div className="grid md:grid-cols-3 gap-8">
         {/* Cart Items */}
@@ -53,7 +55,7 @@ export default function CartPage() {
         {/* Order Summary */}
         <Card className="h-fit sticky top-20">
           <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
+            <CardTitle>Ringkasan Pesanan</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-3 pb-6 border-b border-border">
@@ -74,10 +76,10 @@ export default function CartPage() {
 
             <div className="flex flex-col gap-3">
               <Button asChild size="lg" className="w-full">
-                <Link href="/checkout">Proceed to Checkout</Link>
+                <Link href="/checkout">Lanjut ke Pembayaran</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full">
-                <Link href="/products">Continue Shopping</Link>
+                <Link href="/products">Lanjutkan Belanja</Link>
               </Button>
             </div>
           </CardContent>

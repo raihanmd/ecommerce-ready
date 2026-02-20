@@ -105,10 +105,10 @@ export function ProductFilters({ categories = [] }: ProductFiltersProps) {
             disabled={isPending}
           >
             <SelectTrigger>
-              <SelectValue placeholder="All Categories" />
+              <SelectValue placeholder="Semua Kategori" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="all">Semua Kategori</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}
@@ -143,7 +143,7 @@ export function ProductFilters({ categories = [] }: ProductFiltersProps) {
           </div>
           <Button type="submit" disabled={isPending}>
             <Search className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline">Cari</span>
           </Button>
         </form>
       </div>

@@ -19,7 +19,7 @@ export default function CartItem({ item }: CartItemProps) {
     if (item.quantity < item.product.stock) {
       cart.updateQuantity(item.productId, item.quantity + 1);
     } else {
-      toast.error("Insufficient stock");
+      toast.error("Stok tidak mencukupi");
     }
   };
 
@@ -33,7 +33,7 @@ export default function CartItem({ item }: CartItemProps) {
 
   const handleRemove = () => {
     cart.removeItem(item.productId);
-    toast.success("Item removed from cart");
+    toast.success("Item dihapus dari keranjang");
   };
 
   const subtotal = parseFloat(item.product.price) * item.quantity;
@@ -51,7 +51,7 @@ export default function CartItem({ item }: CartItemProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            No image
+            Tidak ada gambar
           </div>
         )}
       </div>
