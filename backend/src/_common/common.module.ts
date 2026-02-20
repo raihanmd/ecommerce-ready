@@ -9,6 +9,7 @@ import { ErrorFilter } from "./error/error.filter";
 import { JwtGuard } from "./guards/jwt.guard";
 import { ValidationService } from "./validation/validation.service";
 import { ImageKitService } from "./imagekit/imagekit.service";
+import { MidtransService } from "./midtrans/midtrans.service";
 
 @Global()
 @Module({
@@ -29,6 +30,7 @@ import { ImageKitService } from "./imagekit/imagekit.service";
     PrismaService,
     ValidationService,
     ImageKitService,
+    MidtransService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -42,6 +44,12 @@ import { ImageKitService } from "./imagekit/imagekit.service";
       useClass: ErrorFilter,
     },
   ],
-  exports: [ResponseService, PrismaService, ValidationService, ImageKitService],
+  exports: [
+    ResponseService,
+    PrismaService,
+    ValidationService,
+    ImageKitService,
+    MidtransService,
+  ],
 })
 export class CommonModule {}

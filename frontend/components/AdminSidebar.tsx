@@ -55,11 +55,12 @@ export function AdminSidebar() {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
+      <div className="lg:hidden fixed top-4 right-4 z-50">
         <Button
-          variant="outline"
+          variant={isMobileMenuOpen ? "default" : "outline"}
           size="icon"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          title={isMobileMenuOpen ? "Close sidebar" : "Open sidebar"}
         >
           {isMobileMenuOpen ? (
             <X className="h-5 w-5" />

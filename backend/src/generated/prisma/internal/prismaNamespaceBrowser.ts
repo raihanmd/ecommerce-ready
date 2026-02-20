@@ -17,8 +17,8 @@
 
 import * as runtime from "@prisma/client/runtime/index-browser"
 
-export type * from '../models.js'
-export type * from './prismaNamespace.js'
+export type * from '../models'
+export type * from './prismaNamespace'
 
 export const Decimal = runtime.Decimal
 
@@ -56,6 +56,7 @@ export const ModelName = {
   Category: 'Category',
   Product: 'Product',
   Order: 'Order',
+  Payment: 'Payment',
   OrderItem: 'OrderItem'
 } as const
 
@@ -143,6 +144,26 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  order_id: 'order_id',
+  snap_token: 'snap_token',
+  snap_redirect_url: 'snap_redirect_url',
+  midtrans_order_id: 'midtrans_order_id',
+  transaction_id: 'transaction_id',
+  payment_type: 'payment_type',
+  status: 'status',
+  gross_amount: 'gross_amount',
+  fraud_status: 'fraud_status',
+  status_code: 'status_code',
+  expiry_time: 'expiry_time',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
 export const OrderItemScalarFieldEnum = {

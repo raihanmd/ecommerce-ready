@@ -1,77 +1,77 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiClient, queryClient } from "../queryClient";
-import { Order, CreateOrderPayload } from "@/types";
+import { Order, CreateOrderPayload, InitiatePaymentResponse, Payment } from "@/types";
 
-// Query keys for cache management
+// Query keys
 export const orderKeys = {
   all: ["orders"] as const,
   byNumber: (orderNumber: string) =>
     [...orderKeys.all, "byNumber", orderNumber] as const,
+  paymentStatus: (orderId: string) =>
+    ["payment", "status", orderId] as const,
   admin: {
     all: ["orders", "admin", "all"] as const,
   },
 };
 
 // Fetch order by order number
-const fetchOrderByNumber = async (orderNumber: string) => {
+const fetchOrderByNumber = async (orderNumber: string): Promise<Order> => {
   const { data } = await apiClient.get(`/orders/${orderNumber}`);
-  // Backend returns { payload: order }
   return data.payload || data;
 };
 
 // Create new order
-const createOrder = async (payload: CreateOrderPayload) => {
+const createOrder = async (payload: CreateOrderPayload): Promise<Order> => {
   const { data } = await apiClient.post("/orders", payload);
-  // Backend returns { payload: order }
   return data.payload || data;
 };
 
-// Fetch all orders (admin only)
+const initiatePayment = async (orderId: string): Promise<InitiatePaymentResponse> => {
+  const { data } = await apiClient.post(`/payment/initiate/${orderId}`);
+  return data.payload || data;
+};
+
+const fetchPaymentStatus = async (orderId: string): Promise<Payment> => {
+  const { data } = await apiClient.get(`/payment/status/${orderId}`);
+  return data.payload || data;
+};
+
+// Fetch all orders (admin)
 const fetchAllOrders = async () => {
   const { data } = await apiClient.get("/orders/admin/all");
-  // Backend returns { payload: [...orders] or { payload: { data: [...], pagination: {...} } } }
   return data.payload || data;
 };
 
-// Approve order (admin only)
 const approveOrder = async (orderId: string) => {
   const { data } = await apiClient.patch(`/orders/${orderId}/approve`);
-  // Backend returns { payload: order }
   return data.payload || data;
 };
 
-// Reject order (admin only)
 const rejectOrder = async (orderId: string) => {
   const { data } = await apiClient.patch(`/orders/${orderId}/reject`);
-  // Backend returns { payload: order }
   return data.payload || data;
 };
 
-// Update order status (admin only)
 const updateOrderStatus = async (orderId: string, status: string) => {
-  const { data } = await apiClient.patch(`/orders/${orderId}/status`, {
-    status,
-  });
-  // Backend returns { payload: order }
+  const { data } = await apiClient.patch(`/orders/${orderId}/status`, { status });
   return data.payload || data;
 };
 
-// Hook to fetch order by order number
+// ─── Hooks ────────────────────────────────────────────────────
+
 export const useOrderByNumber = (orderNumber: string | null) => {
   return useQuery({
     queryKey: orderKeys.byNumber(orderNumber || ""),
     queryFn: () => fetchOrderByNumber(orderNumber!),
     enabled: !!orderNumber,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 };
 
-// Hook to create order
 export const useCreateOrder = () => {
   return useMutation({
     mutationFn: createOrder,
     onSuccess: (data) => {
-      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: orderKeys.all });
       if (data?.order_number) {
         queryClient.setQueryData(orderKeys.byNumber(data.order_number), data);
@@ -80,45 +80,64 @@ export const useCreateOrder = () => {
   });
 };
 
-// Hook to fetch all orders (admin)
+export const useInitiatePayment = () => {
+  return useMutation({
+    mutationFn: initiatePayment,
+  });
+};
+
+// Polling aktif hanya saat enabled=true (setelah Snap popup dibuka)
+export const usePaymentStatus = (orderId: string | null, enabled = false) => {
+  return useQuery({
+    queryKey: orderKeys.paymentStatus(orderId || ""),
+    queryFn: () => fetchPaymentStatus(orderId!),
+    enabled: !!orderId && enabled,
+    // Refetch setiap 3 detik untuk polling webhook result
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data) return 3000;
+      // Stop polling jika sudah terminal status
+      const terminalStatuses = ["SETTLEMENT", "CANCEL", "EXPIRE", "FAILURE", "DENY"];
+      if (terminalStatuses.includes(data.status)) return false;
+      return 3000;
+    },
+    refetchIntervalInBackground: false,
+    staleTime: 0,
+  });
+};
+
 export const useAllOrders = (enabled = false) => {
   return useQuery({
     queryKey: orderKeys.admin.all,
     queryFn: fetchAllOrders,
     enabled,
-    staleTime: 2 * 60 * 1000, // 2 minutes for admin data
+    staleTime: 2 * 60 * 1000,
   });
 };
 
-// Hook to approve order
 export const useApproveOrder = () => {
   return useMutation({
     mutationFn: approveOrder,
     onSuccess: () => {
-      // Invalidate admin orders list
       queryClient.invalidateQueries({ queryKey: orderKeys.admin.all });
     },
   });
 };
 
-// Hook to reject order
 export const useRejectOrder = () => {
   return useMutation({
     mutationFn: rejectOrder,
     onSuccess: () => {
-      // Invalidate admin orders list
       queryClient.invalidateQueries({ queryKey: orderKeys.admin.all });
     },
   });
 };
 
-// Hook to update order status
 export const useUpdateOrderStatus = () => {
   return useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
       updateOrderStatus(orderId, status),
     onSuccess: () => {
-      // Invalidate admin orders list
       queryClient.invalidateQueries({ queryKey: orderKeys.admin.all });
     },
   });

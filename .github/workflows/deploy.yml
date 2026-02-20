@@ -59,6 +59,9 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ steps.vars.outputs.SHA_TAG }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-Ob_eGd6eYL6Y0nJp
+            NEXT_PUBLIC_MIDTRANS_SNAP_URL=https://app.sandbox.midtrans.com/snap/snap.js
+            NEXT_PUBLIC_OWNER_WHATSAPP=+6289606007128
 
   deploy:
     needs: build-and-push

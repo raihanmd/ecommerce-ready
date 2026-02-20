@@ -5,6 +5,7 @@ import { useCart } from "@/hooks/useCart";
 import CartItem from "@/components/CartItem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatRupiah } from "@/lib/currency";
 import { ShoppingCart } from "lucide-react";
 
 export default function CartPage() {
@@ -59,19 +60,7 @@ export default function CartPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-semibold">
-                  ${cart.getTotalPrice().toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span className="font-semibold text-sm text-muted-foreground">
-                  TBD
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="font-semibold text-sm text-muted-foreground">
-                  TBD
+                  {formatRupiah(cart.getTotalPrice())}
                 </span>
               </div>
             </div>
@@ -79,7 +68,7 @@ export default function CartPage() {
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
               <span className="text-primary">
-                ${cart.getTotalPrice().toFixed(2)}
+                {formatRupiah(cart.getTotalPrice())}
               </span>
             </div>
 

@@ -57,6 +57,41 @@ export enum PaymentMethod {
   COD = "cod",
   TRANSFER = "transfer",
   EWALLET = "ewallet",
+  MIDTRANS = "midtrans",
+}
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  CAPTURE = "CAPTURE",
+  SETTLEMENT = "SETTLEMENT",
+  DENY = "DENY",
+  CANCEL = "CANCEL",
+  EXPIRE = "EXPIRE",
+  FAILURE = "FAILURE",
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  snap_token: string | null;
+  snap_redirect_url: string | null;
+  midtrans_order_id: string;
+  transaction_id: string | null;
+  payment_type: string | null;
+  status: PaymentStatus;
+  gross_amount: string;
+  fraud_status: string | null;
+  status_code: string | null;
+  expiry_time: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InitiatePaymentResponse {
+  snap_token: string;
+  redirect_url: string;
+  payment_id: string;
+  expires_at: string;
 }
 
 export interface Order {
@@ -72,6 +107,7 @@ export interface Order {
   total_amount: string;
   status: OrderStatus;
   order_items?: OrderItem[];
+  payment?: Payment; // ✅ relasi payment
   created_at: string;
   updated_at: string;
 }

@@ -7,7 +7,7 @@ export const CreateOrderSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   delivery_schedule: z.enum(["pagi", "siang", "sore"]),
-  payment_method: z.enum(["cod", "transfer", "ewallet"]),
+  payment_method: z.enum(["cod", "transfer", "ewallet", "midtrans"]),
   items: z
     .array(
       z.object({

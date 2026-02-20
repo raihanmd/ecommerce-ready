@@ -6,6 +6,7 @@ import { Product } from "@/types";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
+import { formatRupiah } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +53,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </h3>
 
           <p className="text-primary font-bold text-lg mb-2">
-            ${parseFloat(product.price).toFixed(2)}
+            {formatRupiah(product.price)}
           </p>
 
           <div className="mb-4">

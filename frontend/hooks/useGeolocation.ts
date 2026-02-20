@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
-interface Geolocation {
+interface GeolocationState {
   latitude: number | null;
   longitude: number | null;
   error: string | null;
@@ -10,45 +10,56 @@ interface Geolocation {
 }
 
 export const useGeolocation = () => {
-  const [location, setLocation] = useState<Geolocation>({
+  const [state, setState] = useState<GeolocationState>({
     latitude: null,
     longitude: null,
     error: null,
     loading: false,
   });
 
-  const requestLocation = () => {
-    setLocation((prev) => ({ ...prev, loading: true }));
-
-    if (!navigator.geolocation) {
-      setLocation({
-        latitude: null,
-        longitude: null,
-        error: "Geolocation not supported",
+  const requestLocation = useCallback(() => {
+    // Guard: browser tidak support
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setState((prev) => ({
+        ...prev,
+        error: "Browser Anda tidak mendukung geolocation",
         loading: false,
-      });
+      }));
       return;
     }
 
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLocation({
+        setState({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           error: null,
           loading: false,
         });
       },
-      (error) => {
-        setLocation({
+      (err) => {
+        // Map GeolocationPositionError code ke pesan yang user-friendly
+        const messages: Record<number, string> = {
+          1: "Akses lokasi ditolak. Izinkan akses lokasi di pengaturan browser.",
+          2: "Lokasi tidak dapat ditentukan. Periksa koneksi internet Anda.",
+          3: "Permintaan lokasi timeout. Silakan coba lagi.",
+        };
+        setState({
           latitude: null,
           longitude: null,
-          error: error.message,
+          error: messages[err.code] ?? "Gagal mendapatkan lokasi.",
           loading: false,
         });
       },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
     );
-  };
+  }, []);
 
-  return { ...location, requestLocation };
+  return { ...state, requestLocation };
 };

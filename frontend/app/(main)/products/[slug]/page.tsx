@@ -7,6 +7,7 @@ import { useProductDetail } from "@/lib/queries/useProducts";
 import { useCart } from "@/hooks/useCart";
 import { FaArrowLeft, FaShoppingCart } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { formatRupiah } from "@/lib/currency";
 import { useParams } from "next/navigation";
 
 export default function ProductDetailPage() {
@@ -150,7 +151,7 @@ export default function ProductDetailPage() {
 
           {/* Price */}
           <p className="text-3xl font-bold text-blue-600 mb-6">
-            ${parseFloat(product.price).toFixed(2)}
+            {formatRupiah(product.price)}
           </p>
 
           {/* Stock Status */}

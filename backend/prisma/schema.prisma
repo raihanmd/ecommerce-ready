@@ -84,12 +84,55 @@ model Order {
   total_amount      Decimal     @db.Decimal(10, 2)
   status            OrderStatus @default(PENDING)
   order_items       OrderItem[]
-  created_at        DateTime    @default(now())
-  updated_at        DateTime    @updatedAt
+
+  payment Payment?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@index([order_number])
   @@index([status])
   @@map("orders")
+}
+
+model Payment {
+  id       String @id @default(cuid())
+  order_id String @unique
+  order    Order  @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  snap_token        String? @db.Text
+  snap_redirect_url String? @db.Text
+  midtrans_order_id String  @unique @db.VarChar(255) // format: ORDER_NUMBER-TIMESTAMP
+  transaction_id    String? @db.VarChar(255)
+  payment_type      String? @db.VarChar(100) // gopay, bank_transfer, credit_card, dll
+
+  // Status & amount
+  status       PaymentStatus @default(PENDING)
+  gross_amount Decimal       @db.Decimal(10, 2)
+
+  // Notification data dari webhook
+  fraud_status String? @db.VarChar(50)
+  status_code  String? @db.VarChar(10)
+
+  // Expiry token
+  expiry_time DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([midtrans_order_id])
+  @@index([status])
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  CAPTURE // credit card - menunggu review / challenge
+  SETTLEMENT // pembayaran berhasil
+  DENY // ditolak bank/FDS
+  CANCEL // dibatalkan
+  EXPIRE // expired
+  FAILURE // gagal
 }
 
 model OrderItem {

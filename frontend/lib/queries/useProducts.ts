@@ -84,7 +84,7 @@ export const useProductDetail = (slug: string) => {
     queryFn: async () => {
       try {
         const response = await apiClient.get<ProductDetailsResponse>(
-          `/products/detail/${slug}`,
+          `/products/${slug}`,
         );
         return response.data.payload;
       } catch (err) {
@@ -126,7 +126,7 @@ export const usePrefetchProduct = () => {
       queryKey: ["product", slug],
       queryFn: async () => {
         const response = await apiClient.get<ProductDetailsResponse>(
-          `/products/detail/${slug}`,
+          `/products/${slug}`,
         );
         return response.data.payload;
       },

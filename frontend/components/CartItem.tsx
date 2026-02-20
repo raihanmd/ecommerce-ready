@@ -6,6 +6,7 @@ import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { formatRupiah } from "@/lib/currency";
 
 interface CartItemProps {
   item: CartItemType;
@@ -61,7 +62,7 @@ export default function CartItem({ item }: CartItemProps) {
           {item.product.name}
         </h3>
         <p className="text-primary font-bold mb-3">
-          ${parseFloat(item.product.price).toFixed(2)}
+          {formatRupiah(item.product.price)}
         </p>
 
         {/* Quantity Controls */}
@@ -88,7 +89,7 @@ export default function CartItem({ item }: CartItemProps) {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Subtotal: ${subtotal.toFixed(2)}
+          Subtotal: {formatRupiah(subtotal)}
         </p>
       </div>
 
